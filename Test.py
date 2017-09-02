@@ -5,10 +5,6 @@ class Params:
 
     PGN_INPUT_FILE_PATH = "C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\test_pgn.txt"
 
-class ReadPGN:
-
-    def __init__(self):
-        pass
 
 with open("C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\test_pgn.txt") as pgn:
     current_game = chess.pgn.read_game(pgn)

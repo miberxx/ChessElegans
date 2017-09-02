@@ -1,6 +1,65 @@
 import chess.pgn
 
 #==============================================================================================================================================================
+def read_PGN_file(path):
+    all_games_in_file = []
+    pgn_file_handle = open(path)
+
+    while True:
+        game = chess.pgn.read_game(pgn_file_handle)
+        if game == None:
+            break
+        else:
+            all_games_in_file.append(game)
+
+
+    for game in all_games_in_file:
+        node = game
+        move_list = []
+        while not node.is_end():
+            next_node = node.variations[0]
+            move_list.append(next_node.move)
+            node = next_node
+        board = chess.Board()
+        print('----------------------------------------------------------------------------------------------------')
+        print(board.fen())
+        #initial position for the game
+        if not validate_conversion_board(board.fen()):
+            print('Validation error for position ' + game)
+            exit(0)
+        for move in move_list:
+            if not validate_conversion_move(str(move)):
+                print('Validation error for move ' + str(move))
+                exit(0)
+            board.push(move)
+            if not validate_conversion_board(board.fen()):
+                print('Validation error for position ' + str(game))
+                exit(0)
+#==============================================================================================================================================================
+def validate_conversion_board(fen):
+    fen_split = fen.split(' ')
+    fen_for_compare = ''.join(fen_split[0]) + ' ' + ''.join(fen_split[1]) + ' ' + ''.join(fen_split[2]) + ' ' + ''.join(fen_split[3])
+    fen_converted_back = convert_board_NN_FEN(convert_board_FEN_NN(fen))
+    if fen_for_compare == fen_converted_back:
+        print('FEN original: ' + fen)
+        print('FEN convert : ' + fen_converted_back)
+        return True
+    else:
+        print('FEN original: ' + fen)
+        print('FEN convert : ' + fen_converted_back)
+        return False
+#==============================================================================================================================================================
+def validate_conversion_move(uci_move):
+    tmp = convert_move_NN_UCI(convert_move_UCI_NN(uci_move))
+    if uci_move == tmp:
+        print('UCI original: ' + uci_move)
+        print('UCI convert : ' + tmp)
+        return True
+    else:
+        print('UCI original: ' + uci_move)
+        print('UCI convert : ' + tmp)
+        return False
+# ==============================================================================================================================================================
 def convert_board_FEN_NN(fen):
 
     tmp_fen = fen
@@ -119,7 +178,7 @@ def convert_board_FEN_NN(fen):
     if move_w_b == 'w':
         to_move = '1'
     else:
-        to_move - '-1'
+        to_move = '-1'
 #Castling
     castling = '0000'
     if 'K' in castle:
@@ -168,6 +227,7 @@ def convert_board_FEN_NN(fen):
         en_passant = '0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1'
 
     position = P + ',' + R + ',' + N + ',' + B + ',' + Q + ',' + K + ',' + to_move + ',' + final_castling + ',' + en_passant
+    return position
 #==============================================================================================================================================================
 def convert_move_UCI_NN(uci_move):
     #a,b,c,d,e,f,g,h
@@ -252,6 +312,7 @@ def convert_move_UCI_NN(uci_move):
     final_move = from_move_file + ',' + from_move_rank + ',' + to_move_file + ',' + to_move_rank
     if len(uci_move)>4:
         final_move = final_move + ',' + promote
+    return final_move
 #==============================================================================================================================================================
 def remove_zeros(fen8):
     istring = fen8
@@ -280,7 +341,7 @@ def remove_zeros(fen8):
         if 7 - pieces_pos[n] > 0:
             tmp.append(str(7 - pieces_pos[n]))
     final = ''.join(tmp)
-    return(final)
+    return final
 # ==============================================================================================================================================================
 def convert_board_NN_FEN(nn_board):
     board = nn_board.split(',')
@@ -368,8 +429,10 @@ def convert_board_NN_FEN(nn_board):
         castling_fen.append('k')
     if castling[3] == '1':
         castling_fen.append('q')
+    if castling[0] == '0' and castling[1] == '0' and castling[2] == '0' and castling[3] == '0':
+        castling_fen.append('-')
     #en_passant
-
+    en_passant_fen = '-'
     if en_passant[0] == '1':
         en_passant_fen = 'a3'
     if en_passant[1] == '1':
@@ -403,8 +466,10 @@ def convert_board_NN_FEN(nn_board):
     if en_passant[15] == '1':
         en_passant_fen = 'h6'
 
+
+
     final_fen = board_nn_fen + ' ' + ''.join(fen_to_move) + ' ' + ''.join(castling_fen) + ' ' + ''.join(en_passant_fen)
-    print(final_fen)
+    return final_fen
 #==============================================================================================================================================================
 def convert_move_NN_UCI(nn_move):
     nn_move = nn_move.split(',')
@@ -537,15 +602,8 @@ def convert_move_NN_UCI(nn_move):
                     break
     final_uci = file_from_uci+rank_from_uci+file_to_uci+rank_to_uci
     if len(nn_move) > 32:
-        final_uci = final_uci + promote
-    print(final_uci)
+        final_uci = final_uci + promote_uci
+    return final_uci
 
+read_PGN_file("C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\1pgn.txt")
 
-
-convert_board_FEN_NN("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6")
-print("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6")
-convert_board_NN_FEN('0,0,0,0,0,0,0,0,-1,-1,0,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,1,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,-1,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,-1,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0')
-
-convert_move_UCI_NN('e2e4')
-print('e2e4')
-convert_move_NN_UCI('0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0')
