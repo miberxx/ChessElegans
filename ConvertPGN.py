@@ -607,5 +607,5 @@ def convert_move_NN_UCI(nn_move):
         final_uci = final_uci + promote_uci
     return final_uci
 
-read_PGN_file("C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\HQ.pgn")
+read_PGN_file("C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\150pgn.txt")
 
