@@ -4,13 +4,15 @@ import chess.pgn
 def read_PGN_file(path):
     all_games_in_file = []
     pgn_file_handle = open(path)
-
+    count_games = 0
     while True:
         game = chess.pgn.read_game(pgn_file_handle)
         if game == None:
             break
         else:
             all_games_in_file.append(game)
+            count_games += 1
+            print(str(count_games) + '. ' + str(game.headers))
 
 
     for game in all_games_in_file:
@@ -21,8 +23,8 @@ def read_PGN_file(path):
             move_list.append(next_node.move)
             node = next_node
         board = chess.Board()
-        print('----------------------------------------------------------------------------------------------------')
-        print(board.fen())
+        #print('----------------------------------------------------------------------------------------------------')
+        #print(board.fen())
         #initial position for the game
         if not validate_conversion_board(board.fen()):
             print('Validation error for position ' + game)
@@ -41,8 +43,8 @@ def validate_conversion_board(fen):
     fen_for_compare = ''.join(fen_split[0]) + ' ' + ''.join(fen_split[1]) + ' ' + ''.join(fen_split[2]) + ' ' + ''.join(fen_split[3])
     fen_converted_back = convert_board_NN_FEN(convert_board_FEN_NN(fen))
     if fen_for_compare == fen_converted_back:
-        print('FEN original: ' + fen)
-        print('FEN convert : ' + fen_converted_back)
+        #print('FEN original: ' + fen)
+        #print('FEN convert : ' + fen_converted_back)
         return True
     else:
         print('FEN original: ' + fen)
@@ -52,8 +54,8 @@ def validate_conversion_board(fen):
 def validate_conversion_move(uci_move):
     tmp = convert_move_NN_UCI(convert_move_UCI_NN(uci_move))
     if uci_move == tmp:
-        print('UCI original: ' + uci_move)
-        print('UCI convert : ' + tmp)
+        #print('UCI original: ' + uci_move)
+        #print('UCI convert : ' + tmp)
         return True
     else:
         print('UCI original: ' + uci_move)
@@ -605,5 +607,5 @@ def convert_move_NN_UCI(nn_move):
         final_uci = final_uci + promote_uci
     return final_uci
 
-read_PGN_file("C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\1pgn.txt")
+read_PGN_file("C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\HQ.pgn")
 
