@@ -1,20 +1,36 @@
 import chess.pgn
 
+class params:
+    RAW_INPUT_FILE = "C:\\Users\\Michael\\Desktop\\ChessElegans\\HQ.pgn"
+    VERIFIED_GAMES_FILE = "C:\\Users\\Michael\\Desktop\\ChessElegans\\test_verified_games.pgn"
+    READ_FILE_VERBOSE = False
+    WRITE_VERIFIED_GAMES = False
+
+
 #==============================================================================================================================================================
 def read_PGN_file(path):
     all_games_in_file = []
-    pgn_file_handle = open(path)
+    pgn_file_handle = open(path, encoding="ansi")
+    if params.WRITE_VERIFIED_GAMES:
+        pgn_verified_handle = open(params.VERIFIED_GAMES_FILE, 'w', encoding="utf-8")
+        exporter = chess.pgn.FileExporter(pgn_verified_handle)
+    print('Reading game file...')
     count_games = 0
     while True:
         game = chess.pgn.read_game(pgn_file_handle)
+        if not game == None:
+            if params.WRITE_VERIFIED_GAMES:
+                game.accept(exporter)
         if game == None:
             break
         else:
             all_games_in_file.append(game)
             count_games += 1
-            print(str(count_games) + '. ' + str(game.headers))
-
-
+            if params.READ_FILE_VERBOSE:
+                #print(str(count_games) + '. ' + str(game.headers))
+                print(str(count_games))
+    print('Number of games read: ' + str(count_games))
+    print('Validating...')
     for game in all_games_in_file:
         node = game
         move_list = []
@@ -37,6 +53,7 @@ def read_PGN_file(path):
             if not validate_conversion_board(board.fen()):
                 print('Validation error for position ' + str(game))
                 exit(0)
+
 #==============================================================================================================================================================
 def validate_conversion_board(fen):
     fen_split = fen.split(' ')
@@ -607,5 +624,4 @@ def convert_move_NN_UCI(nn_move):
         final_uci = final_uci + promote_uci
     return final_uci
 
-read_PGN_file("C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\150pgn.txt")
-
+read_PGN_file(params.RAW_INPUT_FILE)
