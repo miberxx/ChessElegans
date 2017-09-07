@@ -1,19 +1,75 @@
 import chess.pgn
 
 class params:
-    RAW_INPUT_FILE = "C:\\Users\\Michael\\Desktop\\ChessElegans\\HQ.pgn"
-    VERIFIED_GAMES_FILE = "C:\\Users\\Michael\\Desktop\\ChessElegans\\test_verified_games.pgn"
+    RAW_INPUT_FILE = "C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\6000.pgn"
+    CELEGANS_INPUT_FILE = "C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\6000_out.txt"
     READ_FILE_VERBOSE = False
     WRITE_VERIFIED_GAMES = False
+    VERIFY_VERBOSE = False
 
-
+def check_longest_game_in_file(inpath, intxtenc):
+    print('Opening file for read ' + inpath + ' with encoding ' + intxtenc)
+    pgn_input_file_handle = open(inpath, encoding=intxtenc)
+    count_games = 0
+    max_moves = 0
+    print('Reading games and counting maximum moves...')
+    while True:
+        game = chess.pgn.read_game(pgn_input_file_handle)
+        if game == None:
+            break
+        if game.errors == []:
+            count_games += 1
+            node = game
+            move_list = []
+            while not node.is_end():
+                next_node = node.variations[0]
+                move_list.append(next_node.move)
+                node = next_node
+        else:
+            continue
+        if len(move_list) > max_moves:
+                max_moves = len(move_list)
+    print(str(count_games) + ' games checked with max moves: ' + str(max_moves))
+    return [count_games,max_moves]
 #==============================================================================================================================================================
-def read_PGN_file(path):
+def create_CElegans_Input_File(inpath, intxtenc, outpath, outtxtenc):
+    print('Opening file for read ' + inpath + ' with encoding ' + intxtenc)
+    pgn_input_file_handle = open(inpath, encoding = intxtenc)
+    print('opeing file for write ' + outpath + ' with encoding ' + outtxtenc)
+    pgn_output_file_handle = open(outpath, 'w', encoding = outtxtenc)
+
+    count_games = 0
+    print('Reading games...')
+    while True:
+        game = chess.pgn.read_game(pgn_input_file_handle)
+        if game == None:
+            break
+        if game.errors == []:
+            count_games += 1
+            node = game
+            move_list = []
+            while not node.is_end():
+                next_node = node.variations[0]
+                move_list.append(next_node.move)
+                node = next_node
+        else:
+            continue
+
+        board = chess.Board()
+
+        for move in move_list:
+            fen_nn = convert_board_FEN_NN(board.fen())
+            move_nn = convert_move_UCI_NN(str(move))
+            sample = fen_nn + '/' + move_nn + '\n'
+            pgn_output_file_handle.write(sample)
+            board.push(move)
+            pass
+    pgn_output_file_handle.close()
+#==============================================================================================================================================================
+def test_conversions(path, txtenc):
     all_games_in_file = []
-    pgn_file_handle = open(path, encoding="ansi")
-    if params.WRITE_VERIFIED_GAMES:
-        pgn_verified_handle = open(params.VERIFIED_GAMES_FILE, 'w', encoding="utf-8")
-        exporter = chess.pgn.FileExporter(pgn_verified_handle)
+    pgn_file_handle = open(path, encoding = txtenc)
+
     print('Reading game file...')
     count_games = 0
     while True:
@@ -32,6 +88,8 @@ def read_PGN_file(path):
     print('Number of games read: ' + str(count_games))
     print('Validating...')
     for game in all_games_in_file:
+        if params.VERIFY_VERBOSE:
+            print(str(game))
         node = game
         move_list = []
         while not node.is_end():
@@ -39,13 +97,16 @@ def read_PGN_file(path):
             move_list.append(next_node.move)
             node = next_node
         board = chess.Board()
-        #print('----------------------------------------------------------------------------------------------------')
-        #print(board.fen())
-        #initial position for the game
+        if params.VERIFY_VERBOSE:
+            print('----------------------------------------------------------------------------------------------------')
+            print(board.fen())
+
         if not validate_conversion_board(board.fen()):
             print('Validation error for position ' + game)
             exit(0)
         for move in move_list:
+            if params.VERIFY_VERBOSE:
+                print(str(move))
             if not validate_conversion_move(str(move)):
                 print('Validation error for move ' + str(move))
                 exit(0)
@@ -53,15 +114,15 @@ def read_PGN_file(path):
             if not validate_conversion_board(board.fen()):
                 print('Validation error for position ' + str(game))
                 exit(0)
-
 #==============================================================================================================================================================
 def validate_conversion_board(fen):
     fen_split = fen.split(' ')
     fen_for_compare = ''.join(fen_split[0]) + ' ' + ''.join(fen_split[1]) + ' ' + ''.join(fen_split[2]) + ' ' + ''.join(fen_split[3])
     fen_converted_back = convert_board_NN_FEN(convert_board_FEN_NN(fen))
     if fen_for_compare == fen_converted_back:
-        #print('FEN original: ' + fen)
-        #print('FEN convert : ' + fen_converted_back)
+        if params.VERIFY_VERBOSE:
+            print('FEN original: ' + fen)
+            print('FEN convert : ' + fen_converted_back)
         return True
     else:
         print('FEN original: ' + fen)
@@ -71,8 +132,9 @@ def validate_conversion_board(fen):
 def validate_conversion_move(uci_move):
     tmp = convert_move_NN_UCI(convert_move_UCI_NN(uci_move))
     if uci_move == tmp:
-        #print('UCI original: ' + uci_move)
-        #print('UCI convert : ' + tmp)
+        if params.VERIFY_VERBOSE:
+            print('UCI original: ' + uci_move)
+            print('UCI convert : ' + tmp)
         return True
     else:
         print('UCI original: ' + uci_move)
@@ -498,7 +560,7 @@ def convert_move_NN_UCI(nn_move):
     rank_to = nn_move[24:32]
 
     if len(nn_move) > 32:
-        promote = nn_move[32:35]
+        promote = nn_move[32:36]
 
     for pos, value in enumerate(file_from):
         if value == '1':
@@ -624,4 +686,6 @@ def convert_move_NN_UCI(nn_move):
         final_uci = final_uci + promote_uci
     return final_uci
 
-read_PGN_file(params.RAW_INPUT_FILE)
+#test_conversions(params.RAW_INPUT_FILE, 'ansi')
+#check_longest_game_in_file(params.RAW_INPUT_FILE,'ansi')
+create_CElegans_Input_File(params.RAW_INPUT_FILE,'ansi',params.CELEGANS_INPUT_FILE,'utf-8')
