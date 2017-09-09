@@ -1,11 +1,11 @@
 
 from keras.models import Sequential
 from keras.layers import Dense, Activation
+import numpy as np
 
 class Params:
-    RAW_INPUT = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\6000_out.txt'
-
-
+    RAW_INPUT = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\500_out.txt'
+    TRAIN_PERCENTAGE = 0.9
 
 def read_input_file():
     dataX = []
@@ -15,9 +15,15 @@ def read_input_file():
             tmp = line.split('/')
             dataX.append(tmp[0].strip().split(','))
             dataY.append(tmp[1].strip().split(','))
+    cutoff = int(len(dataX) * Params.TRAIN_PERCENTAGE)
+    trainX = np.array(dataX[:cutoff])
+    testX = np.array(dataX[cutoff:])
+    trainY = np.array(dataY[:cutoff])
+    testY = np.array(dataY[cutoff:])
 
-    return dataX, dataY
+    return trainX, testX, trainY, testY
 
 
-dataX, dataY = read_input_file()
+trainX, testX, trainY, testY = read_input_file()
 pass
+
