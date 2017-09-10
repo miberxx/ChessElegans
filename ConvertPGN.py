@@ -1,8 +1,8 @@
 import chess.pgn
 
 class params:
-    RAW_INPUT_FILE = "C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\6000.pgn"
-    CELEGANS_INPUT_FILE = "C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\6000_out.txt"
+    RAW_INPUT_FILE = "C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\500.pgn"
+    CELEGANS_INPUT_FILE = "C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\500_out.txt"
     READ_FILE_VERBOSE = False
     WRITE_VERIFIED_GAMES = False
     VERIFY_VERBOSE = False
@@ -60,6 +60,8 @@ def create_CElegans_Input_File(inpath, intxtenc, outpath, outtxtenc):
         for move in move_list:
             fen_nn = convert_board_FEN_NN(board.fen())
             move_nn = convert_move_UCI_NN(str(move))
+            if len(str(move)) == 4:
+                move_nn = move_nn + ',0,0,0,0'
             sample = fen_nn + '/' + move_nn + '\n'
             pgn_output_file_handle.write(sample)
             board.push(move)
