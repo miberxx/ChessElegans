@@ -28,8 +28,8 @@ def read_input_file():
 trainX, testX, trainY, testY = read_input_file()
 
 model = Sequential()
-model.add(Dense(4400, input_dim = len(trainX[0]), init = 'normal', activation = 'tanh'))
-model.add(Dense(len(trainY[0]),activation = 'tanh'))
-model.compile(optimizer = 'adam', loss = 'mse')
+model.add(Dense(4400, input_dim = len(trainX[0]), init = 'normal', activation = 'relu'))
+model.add(Dense(len(trainY[0]),activation = 'softmax'))
+model.compile(optimizer = 'adam', loss = 'categorical_crossentropy ')
 model.fit(trainX, trainY, batch_size = 1, epochs = 10)
 model.evaluate(testX, testY)
