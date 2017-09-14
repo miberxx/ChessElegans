@@ -683,6 +683,8 @@ def convert_move_NN_UCI(nn_move):
                 if pos == 3:
                     promote_uci = 'n'
                     break
+                else:
+                    promote_uci = ''
     final_uci = file_from_uci+rank_from_uci+file_to_uci+rank_to_uci
     if len(nn_move) > 32:
         final_uci = final_uci + promote_uci

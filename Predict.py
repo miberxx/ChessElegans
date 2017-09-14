@@ -21,10 +21,38 @@ def predict(model,fen):
     tmp = tmp.replace('\n', '')
     fen_nn = list(map(int, tmp.split(',')))
     x_nn = np.array(fen_nn).reshape(1,405)
-    y_nn = model.predict(x_nn,1,verbose=1)
-    pass
-    y_UCI = convert_move_NN_UCI(y_nn)
-    pass
+    tmp = model.predict(x_nn,1,verbose=0)
+    top3_file_from, top3_rank_from, top3_file_to, top3_rank_to, top_promotion = convert_prediction_to_NN(tmp)
+    #to do create 3 moves
+    tmp1_file_from = ','.join(str(i) for i in top3_file_from[0])
+    tmp2_file_from = ','.join(str(i) for i in top3_file_from[1])
+    tmp3_file_from = ','.join(str(i) for i in top3_file_from[2])
+
+    tmp1_rank_from = ','.join(str(i) for i in top3_rank_from[0])
+    tmp2_rank_from = ','.join(str(i) for i in top3_rank_from[1])
+    tmp3_rank_from = ','.join(str(i) for i in top3_rank_from[2])
+
+    tmp1_file_to = ','.join(str(i) for i in top3_file_to[0])
+    tmp2_file_to = ','.join(str(i) for i in top3_file_to[1])
+    tmp3_file_to = ','.join(str(i) for i in top3_file_to[2])
+
+    tmp1_rank_to = ','.join(str(i) for i in top3_rank_to[0])
+    tmp2_rank_to = ','.join(str(i) for i in top3_rank_to[1])
+    tmp3_rank_to = ','.join(str(i) for i in top3_rank_to[2])
+
+    promote1 = ','.join(str(i) for i in top_promotion)
+
+    move1 = tmp1_file_from + ',' + tmp1_rank_from + ',' + tmp1_file_to + ',' + tmp1_rank_to + ',' + promote1
+    move2 = tmp2_file_from + ',' + tmp2_rank_from + ',' + tmp2_file_to + ',' + tmp2_rank_to + ',' + '0,0,0,0'
+    move3 = tmp3_file_from + ',' + tmp3_rank_from + ',' + tmp3_file_to + ',' + tmp3_rank_to + ',' + '0,0,0,0'
+    moves = []
+    moves.append(move1)
+    moves.append(move2)
+    moves.append(move3)
+    y_UCI = []
+    for i in range(0,len(moves)):
+        y_UCI.append(convert_move_NN_UCI(moves[i]))
+    return y_UCI
 #==============================================================================================================================================================
 def convert_board_FEN_NN(fen):
     tmp_fen = fen
@@ -323,16 +351,86 @@ def convert_move_NN_UCI(nn_move):
                 if pos == 3:
                     promote_uci = 'n'
                     break
+            else:
+                promote_uci = ''
     final_uci = file_from_uci+rank_from_uci+file_to_uci+rank_to_uci
     if len(nn_move) > 32:
         final_uci = final_uci + promote_uci
     return final_uci
 #==============================================================================================================================================================
 def convert_prediction_to_NN(prediction):
+    file_from = prediction[0][:8]
+    rank_from = prediction[0][8:16]
+    file_to = prediction[0][16:24]
+    rank_to = prediction[0][24:32]
+    promotion = prediction[0][32:36]
 
-#==============================================================================================================================================================
+    top3_file_from = get_top_3(file_from)
+    top3_rank_from = get_top_3(rank_from)
+    top3_file_to = get_top_3(file_to)
+    top3_rank_to = get_top_3(rank_to)
 
+    median = np.median(promotion)
+    max = 0
+    max_index = None
+    top_promotion = []
+    for index, value in enumerate(promotion):
+        if value > 10*median:
+            top_promotion.append(1)
+        else:
+            top_promotion.append(0)
+    return top3_file_from, top3_rank_from, top3_file_to, top3_rank_to, top_promotion
 #==============================================================================================================================================================
+def get_top_3(input):
+    top_3 = []
+    max = 0
+    max_index = None
+    tmp = []
+    for index,value in enumerate(input):
+        if value > max:
+            max = value
+            max_index = index
+    for index, value in enumerate(input):
+        if index == max_index:
+            tmp.append(1)
+            input[index] = 0
+        else:
+            tmp.append(0)
+    top_3.append(tmp)
+
+    max = 0
+    max_index = None
+    tmp = []
+    for index, value in enumerate(input):
+        if value > max:
+            max = value
+            max_index = index
+    for index, value in enumerate(input):
+        if index == max_index:
+            tmp.append(1)
+            input[index] = 0
+        else:
+            tmp.append(0)
+    top_3.append(tmp)
+
+    max = 0
+    max_index = None
+    tmp = []
+    for index, value in enumerate(input):
+        if value > max:
+            max = value
+            max_index = index
+    for index, value in enumerate(input):
+        if index == max_index:
+            tmp.append(1)
+            input[index] = 0
+        else:
+            tmp.append(0)
+    top_3.append(tmp)
+
+    return top_3
+#==============================================================================================================================================================
+np.random.seed(0)
 model = load_model()
 
 
@@ -355,7 +453,12 @@ while not board.is_stalemate() and not board.is_insufficient_material() and not 
                 print('illegal move')
             print('---------------')
     else:
-        predict(model,board.fen())
+        b_moves = predict(model,board.fen())
+        move = chess.Move.from_uci(b_moves[0])
+        if move in board.legal_moves:
+            board.push(move)
+        else:
+            print('illegal move' + b_moves[0])
 
 if board.is_stalemate():
     print('1/2 1/2 stalemate')
