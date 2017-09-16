@@ -1,8 +1,8 @@
 import chess.pgn
 #==============================================================================================================================================================
 class params:
-    RAW_INPUT_FILE = "C:\\Users\\Michael\\Desktop\\ChessElegans\\training600K.pgn"
-    CELEGANS_INPUT_FILE = "C:\\Users\\Michael\\Desktop\\ChessElegans\\training600K_out.txt"
+    RAW_INPUT_FILE = "C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\50K.pgn"
+    CELEGANS_INPUT_FILE = "C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\50K_out.txt"
     READ_FILE_VERBOSE = False
     WRITE_VERIFIED_GAMES = False
     VERIFY_VERBOSE = False
@@ -39,6 +39,7 @@ def create_CElegans_Input_File(inpath, intxtenc, outpath, outtxtenc):
     pgn_output_file_handle = open(outpath, 'w', encoding = outtxtenc)
 
     count_games = 0
+    print('----------------------------------------------------------------------------------------------------------------------------------------------------')
     print('Reading games...')
     while True:
         game = chess.pgn.read_game(pgn_input_file_handle)
@@ -54,7 +55,6 @@ def create_CElegans_Input_File(inpath, intxtenc, outpath, outtxtenc):
                 node = next_node
         else:
             continue
-
         board = chess.Board()
 
         for move in move_list:
@@ -67,6 +67,8 @@ def create_CElegans_Input_File(inpath, intxtenc, outpath, outtxtenc):
             board.push(move)
             pass
     pgn_output_file_handle.close()
+    print('----------------------------------------------------------------------------------------------------------------------------------------------------')
+    print('Games read: ' + str(count_games))
 #==============================================================================================================================================================
 def test_conversions(path, txtenc):
     all_games_in_file = []
