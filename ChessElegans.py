@@ -13,7 +13,7 @@ class Params:
     CHECKPOINT_FILE_MODEL = 'C:\\Users\\Michael\\Desktop\\ChessElegans\\ModelRun\\model.json'
     PLOT_MODEL = True
     BATCH_SIZE = 10
-    EPOCHS = 50
+    EPOCHS = 100
 #==============================================================================================================================================================
 def read_input_file():
     dataX = []
