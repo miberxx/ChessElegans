@@ -1,8 +1,8 @@
 import chess.pgn
 #==============================================================================================================================================================
 class params:
-    RAW_INPUT_FILE = "C:\\Users\\Michael\\Desktop\\ChessElegans\\training.pgn"
-    CELEGANS_INPUT_FILE = "C:\\Users\\Michael\\Desktop\\ChessElegans\\training_out.txt"
+    RAW_INPUT_FILE = "C:\\Users\\Michael\\Desktop\\ChessElegans\\training600K.pgn"
+    CELEGANS_INPUT_FILE = "C:\\Users\\Michael\\Desktop\\ChessElegans\\training600K_out.txt"
     READ_FILE_VERBOSE = False
     WRITE_VERIFIED_GAMES = False
     VERIFY_VERBOSE = False
