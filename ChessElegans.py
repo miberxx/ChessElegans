@@ -5,15 +5,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 #==============================================================================================================================================================
 class Params:
-    CELEGANS_INPUT_FILE = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\50K_out.txt'
+    CELEGANS_INPUT_FILE = 'C:\\Users\\michael\\Desktop\\ChessElegans\\5K_out.txt'
     TRAIN_PERCENTAGE = 0.9
     VALIDATION_SPLIT = 0.1
     CHECKPOINT_MODEL = True
-    CHECKPOINT_FILE_WEIGHTS = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\ModelRun\\weights.best.hdf5'
-    CHECKPOINT_FILE_MODEL = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\ModelRun\\model.json'
+    CHECKPOINT_FILE_WEIGHTS = 'C:\\Users\\michael\\Desktop\\ChessElegans\\ModelRun\\weights.best.hdf5'
+    CHECKPOINT_FILE_MODEL = 'C:\\Users\\michael\\Desktop\\ChessElegans\\ModelRun\\model.json'
     PLOT_MODEL = True
-    BATCH_SIZE = 1
-    EPOCHS = 25
+    BATCH_SIZE = 10
+    EPOCHS = 200
 #==============================================================================================================================================================
 def read_input_file():
     dataX = []
@@ -56,9 +56,9 @@ trainX, testX, trainY, testY = read_input_file()
 print('--------------------------------------------------------------------------------------------------------------------------------------------------------')
 print('Creating model...')
 model = Sequential()
-model.add(Dense(500, input_dim = len(trainX[0]), init = 'RandomUniform', activation = 'relu'))
-model.add(Dense(300, init = 'RandomUniform', activation = 'relu'))
-#model.add(Dense(600, init = 'normal', activation = 'sigmoid'))
+model.add(Dense(3000, input_dim = len(trainX[0]), init = 'RandomUniform', activation = 'relu'))
+#model.add(Dense(300, init = 'RandomUniform', activation = 'relu'))
+#model.add(Dense(100, init = 'normal', activation = 'sigmoid'))
 #model.add(Dense(300, init = 'normal', activation = 'sigmoid'))
 #model.add(Dense(100, init = 'normal', activation = 'sigmoid'))
 model.add(Dense(len(trainY[0]),activation = 'sigmoid'))
@@ -72,10 +72,10 @@ if Params.CHECKPOINT_MODEL:
     with open(Params.CHECKPOINT_FILE_MODEL, 'w') as json_file:
         json_file.write(model_json)
     model.summary()
-    checkpoint = ModelCheckpoint(Params.CHECKPOINT_FILE_WEIGHTS, monitor='categorical_accuracy', verbose=2, save_best_only=True, mode='max')
+    checkpoint = ModelCheckpoint(Params.CHECKPOINT_FILE_WEIGHTS, monitor='categorical_accuracy', verbose=1, save_best_only=True, mode='max')
     callbacks_list = [checkpoint]
-    history = model.fit(trainX, trainY, validation_split=Params.VALIDATION_SPLIT, batch_size = Params.BATCH_SIZE, epochs = Params.EPOCHS, callbacks=callbacks_list, verbose=2)
-    score = model.evaluate(testX, testY, verbose = 2)
+    history = model.fit(trainX, trainY, validation_split=Params.VALIDATION_SPLIT, batch_size = Params.BATCH_SIZE, epochs = Params.EPOCHS, callbacks=callbacks_list, verbose=1)
+    score = model.evaluate(testX, testY, verbose = 1)
     print('--------------------------------------------------------------------------------------------------------------------------------------------------------')
     print('Model evaluation on testY, accuracy :' + "%.2f%%" % (score[1] * 100))
     if Params.PLOT_MODEL:
