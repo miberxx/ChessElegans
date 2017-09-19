@@ -1,8 +1,8 @@
 import chess.pgn
 
-RAW_INPUT_FILE = "C:\\Users\\michael\\Desktop\\ChessElegans\\HQ.pgn"
-OUTPUT_FILE = "C:\\Users\\michael\\Desktop\\ChessElegans\\1K.pgn"
-SPLIT_NO_GAMES = 1000
+RAW_INPUT_FILE = "C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\HQ.pgn"
+OUTPUT_FILE = "C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\0_3K.pgn"
+SPLIT_NO_GAMES = 300
 
 def split_CElegans_Input_File(inpath, intxtenc, outpath, outtxtenc):
     print('Opening file for read ' + inpath + ' with encoding ' + intxtenc)
