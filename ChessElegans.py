@@ -6,15 +6,15 @@ import matplotlib.pyplot as plt
 import timeit
 #==============================================================================================================================================================
 class Params:
-    CELEGANS_INPUT_FILE = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\1K_out.txt'
+    CELEGANS_INPUT_FILE = 'C:\\Users\\michael\\Desktop\\ChessElegans\\10K_out.txt'
     TRAIN_PERCENTAGE = 0.9
     VALIDATION_SPLIT = 0.1
     CHECKPOINT_MODEL = True
-    CHECKPOINT_FILE_WEIGHTS = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\ModelRun\\weights.best.hdf5'
-    CHECKPOINT_FILE_MODEL = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\ModelRun\\model.json'
+    CHECKPOINT_FILE_WEIGHTS = 'C:\\Users\\michael\\Desktop\\ChessElegans\\ModelRun\\weights.best.hdf5'
+    CHECKPOINT_FILE_MODEL = 'C:\\Users\\michael\\Desktop\\ChessElegans\\ModelRun\\model.json'
     PLOT_MODEL = True
     BATCH_SIZE = 10
-    EPOCHS = 20
+    EPOCHS = 100
 #==============================================================================================================================================================
 def read_input_file():
     dataX = []
