@@ -1,9 +1,9 @@
 import chess.pgn
 
-RAW_INPUT_FILE = "C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\HQ.pgn"
-OUTPUT_FILE_PATH = "C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\"
-SPLIT_START = 2
-SPLIT_END = 4
+RAW_INPUT_FILE = "C:\\Users\\michael\\Desktop\\ChessElegans\\HQ.pgn"
+OUTPUT_FILE_PATH = "C:\\Users\\michael\\Desktop\\ChessElegans\\"
+SPLIT_START = 1
+SPLIT_END = 50000
 SPLIT_CONSECUTIVE = False
 SPLIT_INTERVAL = 100
 SPLIT_TOTAL_GAMES = 1000
@@ -42,12 +42,7 @@ def split_consecutive(inpath, intxtenc, outpath, outtxtenc):
     no_files = int(SPLIT_TOTAL_GAMES/SPLIT_INTERVAL)+1
 
     for n in range(0, no_files,1):
-
-
-
-
-
-
+        pass
 
 
 #==============================================================================================================================================================

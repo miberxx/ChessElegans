@@ -7,16 +7,16 @@ import timeit
 from keras.models import model_from_json
 #==============================================================================================================================================================
 class Params:
-    CELEGANS_INPUT_FILE = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\1K_out.txt'
+    CELEGANS_INPUT_FILE = 'C:\\Users\\michael\\Desktop\\ChessElegans\\1_50000_out.txt'
     TRAIN_PERCENTAGE = 0.9
     VALIDATION_SPLIT = 0.1
     CHECKPOINT_MODEL = True
-    CHECKPOINT_FILE_WEIGHTS = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\ModelRun\\weights.best.hdf5'
-    CHECKPOINT_FILE_MODEL = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\ModelRun\\model.json'
+    CHECKPOINT_FILE_WEIGHTS = 'C:\\Users\\michael\\Desktop\\ChessElegans\\ModelRun\\weights.best.hdf5'
+    CHECKPOINT_FILE_MODEL = 'C:\\Users\\michael\\Desktop\\ChessElegans\\ModelRun\\model.json'
     LOAD_MODEL = False
     PLOT_MODEL = True
     BATCH_SIZE = 10
-    EPOCHS = 10
+    EPOCHS = 25
 #==============================================================================================================================================================
 def read_input_file():
     dataX = []
@@ -103,10 +103,10 @@ if Params.LOAD_MODEL:
 else:
     print('Creating model...')
     model = Sequential()
-    model.add(Dense(600, input_dim = len(trainX[0]), init = 'RandomNormal', activation = 'relu'))
-    model.add(Dense(400, init = 'RandomNormal', activation = 'relu'))
-    model.add(Dense(200, init = 'RandomNormal', activation = 'relu'))
-    model.add(Dense(100, init = 'RandomNormal', activation = 'relu'))
+    model.add(Dense(10000, input_dim = len(trainX[0]), init = 'RandomNormal', activation = 'relu'))
+    #model.add(Dense(1000, init = 'RandomNormal', activation = 'relu'))
+    #model.add(Dense(1000, init = 'RandomNormal', activation = 'relu'))
+    #model.add(Dense(1000, init = 'RandomNormal', activation = 'relu'))
     #model.add(Dense(100, init = 'normal', activation = 'sigmoid'))
     model.add(Dense(len(trainY[0]),activation = 'sigmoid'))
     print('--------------------------------------------------------------------------------------------------------------------------------------------------------')
