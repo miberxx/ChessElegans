@@ -8,6 +8,7 @@ import timeit
 from keras.models import model_from_json
 from sklearn import metrics, preprocessing
 import re
+from numpy import random
 #==============================================================================================================================================================
 class Params:
     CELEGANS_INPUT_FILE = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\1K_out.txt'
@@ -19,11 +20,13 @@ class Params:
     LOAD_MODEL = False
     PLOT_MODEL = True
     BATCH_SIZE = 10
-    EPOCHS = 25
+    EPOCHS = 50
+    SHUFFLE_AT_START = False
 #==============================================================================================================================================================
 class ClassAccuracy(keras.callbacks.Callback):
     def on_train_begin(self, logs={}):
         self.class_acc = []
+        self.sample_acc = []
         self.losses = []
 
     def on_train_end(self, logs={}):
@@ -40,6 +43,8 @@ class ClassAccuracy(keras.callbacks.Callback):
 
         correct_classes_total = 0
         total_classes = 0
+        correct_samples = 0
+        total_samples = len(y_true)
 
         for n, sample in enumerate(y_true):
             tmp_true = str(sample)
@@ -69,7 +74,8 @@ class ClassAccuracy(keras.callbacks.Callback):
             ff = False
             rf = False
             ft = False
-            ft = False
+            rt = False
+            pr = False
 
             if file_from_true == file_from_pred:
                 correct_classes_total = correct_classes_total + 1
@@ -87,11 +93,15 @@ class ClassAccuracy(keras.callbacks.Callback):
                 if promotion_true == promotion_pred:
                     correct_classes_total = correct_classes_total + 1
                     total_classes = total_classes + 1
+                    correct_samples = correct_samples + 1
             total_classes = total_classes + 4
 
         epoch_class_acc = correct_classes_total / total_classes
+        epoch_sample_acc = correct_samples / total_samples
         self.class_acc.append(epoch_class_acc)
+        self.sample_acc.append(epoch_sample_acc)
         print("epoch class accuracy: %.2f%%" % (epoch_class_acc * 100))
+        print("epoch sample accuracy: %.2f%%" % (epoch_sample_acc * 100))
         return
 
     def on_batch_begin(self, batch, logs={}):
@@ -103,18 +113,32 @@ class ClassAccuracy(keras.callbacks.Callback):
 def read_input_file():
     dataX = []
     dataY = []
-    with open(Params.CELEGANS_INPUT_FILE) as f:
-        for line in f:
-            line = line.rstrip()
-            line = line.replace('\n', '')
-            tmp = line.split('/')
-            dataX.append(list(map(int, tmp[0].split(','))))
-            dataY.append(list(map(int, tmp[1].split(','))))
-    cutoff = int(len(dataX) * Params.TRAIN_PERCENTAGE)
-    trainX = np.array(dataX[:cutoff])
-    testX = np.array(dataX[cutoff:])
-    trainY = np.array(dataY[:cutoff])
-    testY = np.array(dataY[cutoff:])
+    if Params.SHUFFLE_AT_START:
+        tmp_record = []
+        with open(Params.CELEGANS_INPUT_FILE) as f:
+            for line in f:
+                line = line.rstrip()
+                line = line.replace('\n', '')
+                tmp_record.append(line)
+                #tmp = line.split('/')
+
+        xy_shuffle = np.ndarray(tmp_record)
+        np.random.shuffle(xy_shuffle)
+
+
+    else:
+        with open(Params.CELEGANS_INPUT_FILE) as f:
+            for line in f:
+                line = line.rstrip()
+                line = line.replace('\n', '')
+                tmp = line.split('/')
+                dataX.append(list(map(int, tmp[0].split(','))))
+                dataY.append(list(map(int, tmp[1].split(','))))
+        cutoff = int(len(dataX) * Params.TRAIN_PERCENTAGE)
+        trainX = np.array(dataX[:cutoff])
+        testX = np.array(dataX[cutoff:])
+        trainY = np.array(dataY[:cutoff])
+        testY = np.array(dataY[cutoff:])
 
     return trainX, testX, trainY, testY
 #==============================================================================================================================================================
@@ -123,9 +147,10 @@ def plot_model(model_history, class_acc):
     plt.plot(model_history.history['val_binary_accuracy'])
     plt.plot(model_history.history['loss'])
     plt.plot(class_acc.class_acc)
+    plt.plot(class_acc.sample_acc)
     plt.ylabel('accuracy&loss')
     plt.xlabel('epoch')
-    plt.legend(['train', 'test', 'loss', 'class_acc'], loc='upper left')
+    plt.legend(['train', 'test', 'loss', 'class_acc', 'sample_acc'], loc='upper left')
     plt.show()
 #==============================================================================================================================================================
 def load_model():
@@ -147,7 +172,7 @@ if Params.LOAD_MODEL:
     print('Loading model and weights...')
     model = load_model()
     print('Compiling model...')
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['binary_accuracy'])
+    model.compile(optimizer='Adam', loss='binary_crossentropy', metrics=['binary_accuracy'])
     if Params.CHECKPOINT_MODEL:
         print('--------------------------------------------------------------------------------------------------------------------------------------------------------')
         print("Serializing model to JSON...")
@@ -173,20 +198,30 @@ if Params.LOAD_MODEL:
         print("%s: %.2f%%" % (model.metrics_names[1], score[1] * 100))
         score = model.evaluate(testX, testY, verbose=2)
         if Params.PLOT_MODEL:
-            plot_model(history)
+            plot_model(history, class_acc)
 
 else:
     print('Creating model...')
     model = Sequential()
-    model.add(Dense(5000, input_dim = len(trainX[0]), init = 'RandomNormal', activation = 'relu'))
-    model.add(Dense(5000, init = 'RandomNormal', activation = 'relu'))
-    model.add(Dense(5000, init = 'RandomNormal', activation = 'relu'))
-    #model.add(Dense(500, init = 'RandomNormal', activation = 'relu'))
-    #model.add(Dense(500, init = 'normal', activation = 'sigmoid'))
+    model.add(Dense(300, input_dim = len(trainX[0]), init = 'glorot_normal', activation = 'tanh'))
+    model.add(Dense(300, init = 'glorot_normal', activation = 'tanh'))
+    model.add(Dense(300, init = 'glorot_normal', activation = 'tanh'))
+    model.add(Dense(300, init = 'glorot_normal', activation = 'tanh'))
+    model.add(Dense(300, init = 'glorot_normal', activation = 'tanh'))
+    model.add(Dense(300, init = 'glorot_normal', activation = 'tanh'))
+    model.add(Dense(300, init = 'glorot_normal', activation = 'tanh'))
+    model.add(Dense(300, init = 'glorot_normal', activation = 'tanh'))
+    model.add(Dense(300, init = 'glorot_normal', activation = 'tanh'))
+    model.add(Dense(300, init = 'glorot_normal', activation = 'tanh'))
+    model.add(Dense(300, init = 'glorot_normal', activation = 'tanh'))
+    model.add(Dense(300, init = 'glorot_normal', activation = 'tanh'))
+    model.add(Dense(300, init = 'glorot_normal', activation = 'tanh'))
+    model.add(Dense(300, init = 'glorot_normal', activation = 'tanh'))
+    model.add(Dense(300, init = 'glorot_normal', activation = 'tanh'))
     model.add(Dense(len(trainY[0]),activation = 'sigmoid'))
     print('--------------------------------------------------------------------------------------------------------------------------------------------------------')
     print('Compiling model...')
-    model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['binary_accuracy'])
+    model.compile(optimizer = 'Adam', loss = 'binary_crossentropy', metrics = ['binary_accuracy'])
     if Params.CHECKPOINT_MODEL:
         print('--------------------------------------------------------------------------------------------------------------------------------------------------------')
         print("Serializing model to JSON...")
@@ -212,4 +247,4 @@ else:
         print("%s: %.2f%%" % (model.metrics_names[1], score[1] * 100))
         score = model.evaluate(testX, testY, verbose=2)
         if Params.PLOT_MODEL:
-            plot_model(history)
+            plot_model(history, class_acc)

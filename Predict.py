@@ -5,7 +5,7 @@ from keras.models import model_from_json
 class Params:
     CHECKPOINT_FILE_WEIGHTS = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\ModelRun\\weights.best.hdf5'
     CHECKPOINT_FILE_MODEL = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\ModelRun\\model.json'
-    TEST_GAMES_FILE = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\ModelRun\\1123testgames.pgn'
+    #TEST_GAMES_FILE = 'C:\\Users\\mbergbauer\\Desktop\\ChessElegans\\ModelRun\\1123testgames.pgn'
 #==============================================================================================================================================================
 def load_model():
     json_file = open(Params.CHECKPOINT_FILE_MODEL, 'r')
@@ -459,6 +459,17 @@ while not board.is_stalemate() and not board.is_insufficient_material() and not 
             board.push(move)
         else:
             print('illegal move' + b_moves[0])
+            move_in = input(w_b_move + ' override computer move: ')
+            if move_in == 'undo':
+                board.pop()
+                print(board)
+            else:
+                move = chess.Move.from_uci(move_in)
+                if move in board.legal_moves:
+                    board.push(move)
+                else:
+                    print('illegal move')
+                print('---------------')
 
 if board.is_stalemate():
     print('1/2 1/2 stalemate')
